@@ -27,12 +27,16 @@ func Initialize(conf Config) {
 
 	fileLogInfo := newLumberjackLogger(getCurrentLogFileName("info"))
 	fileLogError := newLumberjackLogger(getCurrentLogFileName("error"))
+	fileLogDebug := newLumberjackLogger(getCurrentLogFileName("debug"))
 
 	fileLevelInfo := zap.NewAtomicLevel()
 	fileLevelInfo.SetLevel(zap.InfoLevel)
 
 	fileLevelError := zap.NewAtomicLevel()
 	fileLevelError.SetLevel(zap.ErrorLevel)
+
+	fileLevelDebug := zap.NewAtomicLevel()
+	fileLevelDebug.SetLevel(zap.DebugLevel)
 
 	consoleEncoderConfig := zapcore.EncoderConfig{
 		LevelKey:    "level",
@@ -53,10 +57,12 @@ func Initialize(conf Config) {
 
 	fileCoreInfo := newZapCore(fileLogInfo, fileLevelInfo, false)
 	fileCoreError := newZapCore(fileLogError, fileLevelError, false)
+	fileCoreDebug := newZapCore(fileLogDebug, fileLevelDebug, false)
 
 	Logger = zap.New(zapcore.NewTee(
 		fileCoreInfo,
 		fileCoreError,
+		fileCoreDebug,
 		consoleCore,
 	))
 }
@@ -97,4 +103,8 @@ func Info(msg string, fields ...zap.Field) {
 
 func Error(msg string, fields ...zap.Field) {
 	Logger.Error(msg, fields...)
+}
+
+func Debug(msg string, fields ...zap.Field) {
+	Logger.Debug(msg, fields...)
 }
